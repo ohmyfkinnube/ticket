@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         拓元售票確認頁
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-17
+// @version      2025-03-17_v1
 // @description  try to take over the world!
 // @author       You
 // @match        https://tixcraft.com/ticket/ticket/*/*/*/*
