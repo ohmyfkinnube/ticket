@@ -25,7 +25,7 @@
             
             for(let i=0;i<selects.length;i++){
                 if(selects[i].id.indexOf('TicketForm')==0){
-                    console.log('GOT YOU!');
+                    //console.log('GOT YOU!');
                     goCheck = true;
                     selects[i].selectedIndex = 2;
                     break;
