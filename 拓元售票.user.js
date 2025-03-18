@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         拓元售票
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-18_v3
+// @version      2025-03-18_v4
 // @description  try to take over the world!
 // @author       You
 // @match        https://tixcraft.com/activity/detail/*
@@ -201,6 +201,7 @@
                     // 建立輸入框
                     let input = document.createElement("input");
                     input.type = "number";
+                    input.style.width = '60px';
                     let TicketCount = localStorage.getItem("TicketCount") || 2;
                     input.value = TicketCount;
                     input.id = 'TicketCount';
