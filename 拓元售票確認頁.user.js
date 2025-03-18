@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         拓元售票確認頁
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-17_v1
+// @version      2025-03-18_v1
 // @description  try to take over the world!
 // @author       You
 // @match        https://tixcraft.com/ticket/ticket/*/*/*/*
@@ -22,12 +22,13 @@
         }
         let selects = document.querySelectorAll('[class*="mobile-select"]');
         if(selects.length>=1){
-            
+            let NeedTicket = localStorage.getItem("TicketCount") || 2;
+            NeedTicket = parseInt(NeedTicket);
             for(let i=0;i<selects.length;i++){
                 if(selects[i].id.indexOf('TicketForm')==0){
                     //console.log('GOT YOU!');
                     goCheck = true;
-                    selects[i].selectedIndex = 2;
+                    selects[i].selectedIndex = NeedTicket;
                     break;
                 }
             }
