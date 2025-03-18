@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         拓元售票
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-18_v1
+// @version      2025-03-18_v2
 // @description  try to take over the world!
 // @author       You
 // @match        https://tixcraft.com/activity/detail/*
@@ -89,7 +89,7 @@
                         let remainingText = stillTicket.querySelector("font").textContent.trim();
                         //console.log('remainingText=',remainingText);
                         let ht = stillTicket.innerHTML;
-                        if(remainingText == '已售完' || ht.indexOf('身障')>=0 || ht.indexOf('輪椅')>=0 || ht.indexOf('陪同')>=0){
+                        if(remainingText == '已售完' || ht.indexOf('身障')>=0 || ht.indexOf('視線不良')>=0 || ht.indexOf('站')>=0 || ht.indexOf('輪椅')>=0 || ht.indexOf('陪同')>=0){
                             return -1;
                         }else if(remainingText == '熱賣中'){
                             return 99;
@@ -101,12 +101,12 @@
                     };
                     let myTargetAry = [];
                     if(_expansive){
-                        for(let i=2;i<30;i++){
+                        for(let i=2;i<50;i++){
                             myTargetAry.push(eventId+'_'+i);
                         }
                         myTargetAry.push(eventId+'_1');
                     }else{
-                        for(let i=30;i>0;i--){
+                        for(let i=50;i>0;i--){
                             myTargetAry.push(eventId+'_'+i);
                         }
                     }
