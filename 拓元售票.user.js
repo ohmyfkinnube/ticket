@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         拓元售票
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-18_v2
+// @version      2025-03-18_v3
 // @description  try to take over the world!
 // @author       You
 // @match        https://tixcraft.com/activity/detail/*
@@ -76,7 +76,7 @@
                         let start = _html.indexOf(keyWord);
                         let end = _html.indexOf('<!-- end: Area Select -->');
                         let spl = _html.substring(start+keyWord.length,end);
-                        console.log('spl',spl);
+                        //console.log('spl',spl);
                         //spl = spl.substring(keyWord.length,end);
                         //let areaUrlList = JSON.parse(spl);
                         //console.log(spl);
@@ -99,16 +99,42 @@
                             return remainingTicket;
                         }
                     };
-                    let myTargetAry = [];
-                    if(_expansive){
-                        for(let i=2;i<50;i++){
-                            myTargetAry.push(eventId+'_'+i);
+                    let myTargetAry = (function(){
+                        if (fakeDiv) {
+                            // 找到所有 id 為 "group_X" (X: 0-10) 的 <ul>
+                            //let groupLists = fakeDiv.querySelectorAll('ul[id^="group_"]');
+                            let RobFirstArea = document.getElementById('RobFirstArea').checked;
+                            let groupLists = Array.from(fakeDiv.querySelectorAll('ul[id^="group_"]'));
+                            // 不執行搶搖滾區邏輯 排序，讓 group_0 放到最後，其餘順序保持不變
+                            if(_expansive && RobFirstArea == false){
+                                //console.log('不執行搶搖滾區邏輯');
+                                groupLists.sort((a, b) => {
+                                    let idA = a.id.match(/\d+/) ? parseInt(a.id.match(/\d+/)[0]) : 0;
+                                    let idB = b.id.match(/\d+/) ? parseInt(b.id.match(/\d+/)[0]) : 0;
+
+                                    // 如果 idA 是 0，讓它排到最後
+                                    if (idA === 0) return 1;
+                                    if (idB === 0) return -1;
+
+                                    return 0; // 其餘維持原順序
+                                });
+                            }
+                            let eventLinks = []; // 存放所有 <a> 的 id
+                            let matchReg = 'a[id^="'+eventId+'_"]';
+                            groupLists.forEach(group => {
+                                // 找到 group_X 內所有 id 為 "event_X" 的 <a>
+                                let events = group.querySelectorAll(matchReg);
+
+                                events.forEach(event => {
+                                    eventLinks.push(event.id); // 取得 id
+                                });
+                            });
+                            return eventLinks;
                         }
-                        myTargetAry.push(eventId+'_1');
-                    }else{
-                        for(let i=50;i>0;i--){
-                            myTargetAry.push(eventId+'_'+i);
-                        }
+                    })();
+                    //console.log('myTargetAry',myTargetAry); // 印出所有匹配的 event_X id
+                    if(_expansive == false){
+                        myTargetAry.reverse();
                     }
                     //console.log(myTargetAry);
                     //return;
@@ -144,12 +170,37 @@
                 let searchFieldDiv = document.querySelector('div[class*="search-field"]');
 
                 if (searchFieldDiv) {
+                    //控制第一區的checkbox
+                    let container = document.getElementById("checkboxContainer");
+
+                    // 建立 checkbox
+                    let checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.id = "RobFirstArea";
+                    // 讀取 localStorage，設定 checkbox 狀態
+                    checkbox.checked = localStorage.getItem("RobFirstArea") === "true";
+
+                    // 監聽 checkbox 點擊事件，儲存變更
+                    checkbox.addEventListener("change", function () {
+                        localStorage.setItem("RobFirstArea", this.checked);
+                    });
+
+                    // 建立 label
+                    let label = document.createElement("label");
+                    label.style.width = '100px';
+                    label.htmlFor = "dynamicCheckbox";
+                    label.textContent = " 搶搖滾區";
+
+                    // 將 checkbox 和 label 插入
+                    searchFieldDiv.insertAdjacentElement("afterend", label);
+                    label.insertAdjacentElement("afterend", checkbox);
+
                     // 建立新的 div
                     let newDiv = document.createElement("div");
-                    newDiv.style.width = '10%';
+                    newDiv.style.width = '50px';
                     // 建立輸入框
                     let input = document.createElement("input");
-                    input.type = "text";
+                    input.type = "number";
                     let TicketCount = localStorage.getItem("TicketCount") || 2;
                     input.value = TicketCount;
                     input.id = 'TicketCount';
@@ -160,11 +211,11 @@
                     newDiv.appendChild(input);
 
                     // 在 searchFieldDiv 後面插入 newDiv
-                    let newDiv2 = document.createElement("span");
-                    newDiv2.innerHTML = '票數：';
-                    newDiv2.style.width = '10%';
-                    searchFieldDiv.insertAdjacentElement("afterend", newDiv2);
-                    newDiv2.insertAdjacentElement("afterend", newDiv);
+                    let tickSpan = document.createElement("span");
+                    tickSpan.innerHTML = '票數：';
+                    tickSpan.style.width = '80px';
+                    checkbox.insertAdjacentElement("afterend", tickSpan);
+                    tickSpan.insertAdjacentElement("afterend", newDiv);
                 }
             })();
         }
